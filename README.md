@@ -40,3 +40,7 @@ make fuzz
 ```
 
 `CLAUDECLEAN_TEST_REAL_TRASH=1 go test ./internal/trash` also exercises the real Trash.
+
+## License
+
+MIT
