@@ -6,10 +6,14 @@ Browse local Claude Code sessions by folder, move the ones you don't need to mac
 
 ## Install
 
-Requires Go 1.27+ and the Xcode command line tools.
+```sh
+brew install balintb/tap/claudeclean
+```
+
+Or with Go 1.27+ and the Xcode command line tools:
 
 ```sh
-make install
+go install github.com/balintb/claudeclean@latest
 ```
 
 ## Usage
@@ -35,7 +39,8 @@ claudeclean --log FILE  # default: ~/Library/Logs/claudeclean/trash-log.jsonl
 ## Development
 
 ```sh
-make check   # vet, staticcheck, tests with -race
+git config core.hooksPath .githooks   # once per clone: checks commit subjects
+make check                            # vet, staticcheck, tests with -race
 make fuzz
 ```
 

@@ -107,3 +107,31 @@ func TestPrintListStates(t *testing.T) {
 		t.Fatalf("output:\n%s", out)
 	}
 }
+
+func TestResolveVersion(t *testing.T) {
+	defer func(v string) { version = v }(version)
+	for in, want := range map[string]string{"0.3.1": "v0.3.1", "v1.2.0": "v1.2.0", "1.0.0-rc.1": "v1.0.0-rc.1", "abc1234": "abc1234"} {
+		version = in
+		if got := resolveVersion(); got != want {
+			t.Errorf("resolveVersion(%q) = %q, want %q", in, got, want)
+		}
+	}
+	version = ""
+	if resolveVersion() == "" {
+		t.Error("unstamped build reported an empty version")
+	}
+}
+
+func TestIsPseudoVersion(t *testing.T) {
+	for v, want := range map[string]bool{
+		"v0.0.0-20260101120000-abcdef123456":   true,
+		"v1.2.4-0.20260101120000-abcdef123456": true,
+		"v1.2.3":                               false,
+		"v1.2.3-rc.1":                          false,
+		"(devel)":                              false,
+	} {
+		if got := isPseudoVersion(v); got != want {
+			t.Errorf("isPseudoVersion(%q) = %v", v, got)
+		}
+	}
+}

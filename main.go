@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 	"syscall"
 	"text/tabwriter"
@@ -26,7 +27,67 @@ import (
 	"github.com/balintb/claudeclean/internal/ui"
 )
 
-var version = "dev"
+// Stamped by GoReleaser from the release tag; empty otherwise.
+var version = ""
+
+// resolveVersion prefers the stamped tag, then the module version recorded by
+// `go install`, then the VCS revision of a checkout build.
+func resolveVersion() string {
+	v := version
+	if v == "" {
+		v = versionFromBuild()
+	}
+	if v == "" {
+		return "dev"
+	}
+	if v[0] >= '0' && v[0] <= '9' && strings.Contains(v, ".") {
+		v = "v" + v
+	}
+	return v
+}
+
+func isPseudoVersion(v string) bool {
+	parts := strings.FieldsFunc(v, func(r rune) bool { return r == '-' || r == '.' || r == '+' })
+	for _, part := range parts {
+		if len(part) != 14 {
+			continue
+		}
+		if strings.IndexFunc(part, func(r rune) bool { return r < '0' || r > '9' }) < 0 {
+			return true
+		}
+	}
+	return false
+}
+
+func versionFromBuild() string {
+	bi, ok := debug.ReadBuildInfo()
+	if !ok {
+		return ""
+	}
+	if v := bi.Main.Version; v != "" && v != "(devel)" && !isPseudoVersion(v) {
+		return v
+	}
+	var rev string
+	var dirty bool
+	for _, s := range bi.Settings {
+		switch s.Key {
+		case "vcs.revision":
+			rev = s.Value
+		case "vcs.modified":
+			dirty = s.Value == "true"
+		}
+	}
+	if rev == "" {
+		return ""
+	}
+	if len(rev) > 7 {
+		rev = rev[:7]
+	}
+	if dirty {
+		rev += "-dirty"
+	}
+	return rev
+}
 
 func main() {
 	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
@@ -60,7 +121,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	if *showVer {
-		fmt.Fprintf(stdout, "claudeclean %s\n", version)
+		fmt.Fprintf(stdout, "claudeclean %s\n", resolveVersion())
 		return 0
 	}
 

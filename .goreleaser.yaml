@@ -1,0 +1,32 @@
+version: 2
+
+project_name: claudeclean
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  # cgo is needed for the native Trash API, so this runs on a macOS runner.
+  - env:
+      - CGO_ENABLED=1
+    goos: [darwin]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+
+archives:
+  - formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+
+checksum:
+  name_template: checksums.txt
+
+release:
+  # release-please already created the release for this tag.
+  mode: append
+
+changelog:
+  # CHANGELOG.md is release-please's job.
+  disable: true

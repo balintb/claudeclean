@@ -1,14 +1,12 @@
-VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
-LDFLAGS := -s -w -X main.version=$(VERSION)
 STATICCHECK := honnef.co/go/tools/cmd/staticcheck@v0.8.2
 
-.PHONY: build install test fuzz lint check cover clean
+.PHONY: build install test fuzz lint check cover snapshot clean
 
 build:
-	go build -trimpath -ldflags '$(LDFLAGS)' -o bin/claudeclean .
+	go build -trimpath -o bin/claudeclean .
 
 install:
-	go install -trimpath -ldflags '$(LDFLAGS)' .
+	go install -trimpath .
 
 test:
 	go test -race -count=1 ./...
@@ -29,5 +27,8 @@ cover:
 	go test -coverprofile=coverage.out ./...
 	go tool cover -func=coverage.out | tail -1
 
+snapshot:
+	goreleaser release --snapshot --clean
+
 clean:
-	rm -rf bin coverage.out
+	rm -rf bin dist coverage.out
