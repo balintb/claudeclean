@@ -1,5 +1,11 @@
 # `claudeclean`
 
+[![ci](https://img.shields.io/github/actions/workflow/status/balintb/claudeclean/ci.yml?branch=main&label=ci)](https://github.com/balintb/claudeclean/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/balintb/claudeclean)](https://github.com/balintb/claudeclean/releases/latest)
+[![go](https://img.shields.io/github/go-mod/go-version/balintb/claudeclean)](go.mod)
+[![platform](https://img.shields.io/badge/platform-macOS-lightgrey?logo=apple)](#install)
+[![license](https://img.shields.io/github/license/balintb/claudeclean)](LICENSE)
+
 ![claudeclean](screenshot.png)
 
 Browse local Claude Code sessions by folder, move the ones you don't need to macOS Trash.
